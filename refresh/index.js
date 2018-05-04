@@ -15,6 +15,7 @@
  */
 
 'use strict'
+var util = require('util')
 var debug = require('debug')('generator-swiftserver:refresh')
 
 var Generator = require('yeoman-generator')
@@ -214,6 +215,7 @@ module.exports = Generator.extend({
       // Generation of example endpoints from the productSwagger.yaml example.
       if (this.spec.fromSwagger && typeof (this.spec.fromSwagger) === 'string') {
         this.openApiFileOrUrl = this.spec.fromSwagger
+        this.generateCodableRoutes = this.spec.generateCodableRoutes
       }
 
       if (this.exampleEndpoints) {
@@ -762,6 +764,7 @@ module.exports = Generator.extend({
         .then(response => {
           this.loadedApi = response.loaded
           this.parsedSwagger = response.parsed
+          //console.log(util.inspect(this.parsedSwagger.resources["Me"][0], {showHidden: false, depth: null}))
           // mangle the route name to allow the renaming of the default route.
           Object.keys(this.parsedSwagger.resources).forEach(resource => {
             debug('RESOURCENAME:', resource)
@@ -770,6 +773,17 @@ module.exports = Generator.extend({
             } else {
               this.parsedSwagger.resources[resource]['generatedName'] = resource + '_'
             }
+            // if params are present then this is a codable route
+            let routeDetails = this.parsedSwagger.resources[resource]
+            routeDetails.forEach(detail => {
+              console.log("STUFF", detail)
+              detail.codable = detail.params.length > 0
+              if (detail.codable) {
+                // generate a codable handler name
+                detail.handlerName = helpers.codableHandlerName(detail.method, detail.params)
+                detail.param = detail.params[0][0]
+              }
+            })
           })
         })
         .catch(err => {
@@ -1059,17 +1073,21 @@ module.exports = Generator.extend({
     createFromSwagger: function () {
       if (this.parsedSwagger) {
         handlebars.registerHelper('swifttype', helpers.swiftTypeFromSwaggerProperty)
+        handlebars.registerHelper('ifequal', helpers.ifequal)
         Object.keys(this.parsedSwagger.resources).forEach(resource => {
           // Generate routes
           var generatedName = this.parsedSwagger.resources[resource].generatedName
           debug('route:', this.parsedSwagger.resources[resource])
+          console.log(util.inspect(this.parsedSwagger, false, null))
           this.fs.copyHbs(
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
             this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
             {
               resource: generatedName,
-              routes: this.parsedSwagger.resources[resource],
-              basepath: this.parsedSwagger.basepath
+              codable: this.parsedSwagger.resources[resource],
+              raw: this.parsedSwagger.resources[resource],
+              basepath: this.parsedSwagger.basepath,
+              generateCodable: this.generateCodableRoutes
             }
           )
         })

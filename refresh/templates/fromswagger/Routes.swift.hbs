@@ -17,14 +17,85 @@ import Kitura
 import KituraContracts
 
 func initialize{{resource}}Routes(app: App) {
-{{#each routes}}
+{{#if generateCodable}}
+  {{#each codable}}
+    {{#ifequal this.method "delete"}}
+    func deleteAll_{{this.handlerName}}_Handler(completion: (RequestError?) -> Void ) -> Void {
+        completion(nil)
+    }
+    func deleteId_{{this.handlerName}}_Handler(id: Int, completion: (RequestError?) -> Void ) -> Void {
+        completion(nil)
+    }
+
+    {{/ifequal}}
+    {{#ifequal this.method "get"}}
+    func getAll_{{this.handlerName}}_Handler(completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil)
+    }
+    func getId_{{this.handlerName}}_Handler(id: Int, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil)
+    }
+    func getIdNoId_{{this.handlerName}}_Handler(completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil)
+    }
+
+    {{/ifequal}}
+    {{#ifequal this.method "patch"}}
+    func patchId_{{this.handlerName}}_Handler(id: Int, patch: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil)
+    }
+
+    {{/ifequal}}
+    {{#ifequal this.method "post"}}
+    func post_{{this.handlerName}}_Handler(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil)
+    }
+
+    func postId_{{this.handlerName}}_Handler(post: {{this.param}}, completion: (Int?, {{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil, nil)
+    }
+
+    {{/ifequal}}
+    {{#ifequal this.method "put"}}
+    func putId_{{this.handlerName}}_Handler(put: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+        completion(nil, nil)
+    }
+
+    {{/ifequal}}
+  {{/each}}
+
+  {{#each codable}}
+    {{#ifequal this.method "delete"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteAll_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteId_{{this.handlerName}}_Handler)
+    {{/ifequal}}
+    {{#ifequal this.method "get"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getAll_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getIdNoId_{{this.handlerName}}_Handler)
+    {{/ifequal}}
+    {{#ifequal this.method "patch"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: patchId_{{this.handlerName}}_Handler)
+    {{/ifequal}}
+    {{#ifequal this.method "post"}}
+    // Register this route with  postId_{{this.handlerName}}_Handler instead of post_{{this.handlerName}}_Handler if you need the Id returned
+    // app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: post_{{this.handlerName}}_Handler)
+    {{/ifequal}}
+    {{#ifequal this.method "put"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putId_{{this.handlerName}}_Handler)
+    {{/ifequal}}
+  {{/each}}
+{{else}}
+  {{#each raw}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
         response.send(json: [:])
         next()
     }
-{{#if @last}}
-{{else}}
+    {{#if @last}}
+    {{else}}
 
+    {{/if}}
+  {{/each}}
 {{/if}}
-{{/each}}
 }
