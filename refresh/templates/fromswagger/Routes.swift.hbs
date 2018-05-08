@@ -20,6 +20,7 @@ func initialize{{resource}}Routes(app: App) {
 {{#if generateCodable}}
   {{#each codable}}
     {{#ifequal this.method "delete"}}
+      {{#if this.codable}}
     func deleteAll_{{this.handlerName}}_Handler(completion: (RequestError?) -> Void ) -> Void {
         completion(nil)
     }
@@ -27,26 +28,32 @@ func initialize{{resource}}Routes(app: App) {
         completion(nil)
     }
 
+      {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "get"}}
-    func getAll_{{this.handlerName}}_Handler(completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+      {{#if this.codable}}
+    func getAll_{{this.handlerName}}_Handler(completion: ([{{this.response}}]?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
-    func getId_{{this.handlerName}}_Handler(id: Int, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+    func getId_{{this.handlerName}}_Handler(id: Int, completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
-    func getIdNoId_{{this.handlerName}}_Handler(completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+    func getIdNoId_{{this.handlerName}}_Handler(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
+      {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "patch"}}
+      {{#if this.codable}}
     func patchId_{{this.handlerName}}_Handler(id: Int, patch: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
+      {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "post"}}
+      {{#if this.codable}}
     func post_{{this.handlerName}}_Handler(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
@@ -55,16 +62,20 @@ func initialize{{resource}}Routes(app: App) {
         completion(nil, nil, nil)
     }
 
+      {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "put"}}
+      {{#if this.codable}}
     func putId_{{this.handlerName}}_Handler(put: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
+      {{/if}}
     {{/ifequal}}
   {{/each}}
 
   {{#each codable}}
+{{#if this.codable}}
     {{#ifequal this.method "delete"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteAll_{{this.handlerName}}_Handler)
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteId_{{this.handlerName}}_Handler)
@@ -85,6 +96,17 @@ func initialize{{resource}}Routes(app: App) {
     {{#ifequal this.method "put"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putId_{{this.handlerName}}_Handler)
     {{/ifequal}}
+{{else}}
+    // Automatically generated raw route as a codable route could not be generated.
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
+        response.send(json: [:])
+        next()
+    }
+    {{#if @last}}
+    {{else}}
+
+    {{/if}}
+{{/if}}
   {{/each}}
 {{else}}
   {{#each raw}}

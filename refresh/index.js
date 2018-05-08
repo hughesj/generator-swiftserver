@@ -764,7 +764,6 @@ module.exports = Generator.extend({
         .then(response => {
           this.loadedApi = response.loaded
           this.parsedSwagger = response.parsed
-          //console.log(util.inspect(this.parsedSwagger.resources["Me"][0], {showHidden: false, depth: null}))
           // mangle the route name to allow the renaming of the default route.
           Object.keys(this.parsedSwagger.resources).forEach(resource => {
             debug('RESOURCENAME:', resource)
@@ -776,14 +775,20 @@ module.exports = Generator.extend({
             // if params are present then this is a codable route
             let routeDetails = this.parsedSwagger.resources[resource]
             routeDetails.forEach(detail => {
-              console.log("STUFF", detail)
               detail.codable = detail.params.length > 0
               if (detail.codable) {
                 // generate a codable handler name
                 detail.handlerName = helpers.codableHandlerName(detail.method, detail.params)
                 detail.param = detail.params[0][0]
+              } else if (detail.responses.length > 0) {
+                detail.handlerName = helpers.codableHandlerName(detail.method, detail.responses)
+                detail.response = detail.responses[0][0]
+                if (detail.method === 'get' || detail.method === 'delete') {
+                  detail.codable = true
+                }
               }
             })
+            // throw new Error("Something went badly wrong!")
           })
         })
         .catch(err => {
@@ -1078,7 +1083,6 @@ module.exports = Generator.extend({
           // Generate routes
           var generatedName = this.parsedSwagger.resources[resource].generatedName
           debug('route:', this.parsedSwagger.resources[resource])
-          console.log(util.inspect(this.parsedSwagger, false, null))
           this.fs.copyHbs(
             this.templatePath('fromswagger', 'Routes.swift.hbs'),
             this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
@@ -1117,9 +1121,6 @@ module.exports = Generator.extend({
                 model.properties[prop]['optional'] = '?'
               }
               if (model.properties[prop].description && model.properties[prop].description.length > 0) {
-                if (model.properties[prop].description.match(/\n/)) {
-                  console.log('found:', model.properties[prop].description)
-                }
                 // model.properties[prop].description = '// ' + model.properties[prop].description
                 var comments = model.properties[prop].description.split('\n')
                 if (comments[comments.length - 1].length === 0) {
