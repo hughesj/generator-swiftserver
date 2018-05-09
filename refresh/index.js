@@ -779,10 +779,11 @@ module.exports = Generator.extend({
               if (detail.codable) {
                 // generate a codable handler name
                 detail.handlerName = helpers.codableHandlerName(detail.method, detail.params)
-                detail.param = detail.params[0][0]
+                detail.param = detail.params[0]['model']
+             // throw new Error("Something went badly wrong!")
               } else if (detail.responses.length > 0) {
                 detail.handlerName = helpers.codableHandlerName(detail.method, detail.responses)
-                detail.response = detail.responses[0][0]
+                detail.response = detail.responses[0]['model']
                 if (detail.method === 'get' || detail.method === 'delete') {
                   detail.codable = true
                 }
