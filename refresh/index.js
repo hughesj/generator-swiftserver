@@ -775,17 +775,30 @@ module.exports = Generator.extend({
             // if params are present then this is a codable route
             let routeDetails = this.parsedSwagger.resources[resource]
             routeDetails.forEach(detail => {
-              detail.codable = detail.params.length > 0
-              if (detail.codable) {
+              detail.codable = false
+              if (detail.params.length > 0) {
                 // generate a codable handler name
+                detail.codable = true
+                detail.variant = helpers.routeMethodVariant(detail)
                 detail.handlerName = helpers.codableHandlerName(detail.method, detail.params)
                 detail.param = detail.params[0]['model']
-             // throw new Error("Something went badly wrong!")
+                if (detail.method === 'delete') {
+                  // no support for parameters on codable delete, so make this raw
+                  detail.codable = false
+                } else {
+                  detail.route = detail.route.replace(/:.+$/, '')
+                }
               } else if (detail.responses.length > 0) {
                 detail.handlerName = helpers.codableHandlerName(detail.method, detail.responses)
                 detail.response = detail.responses[0]['model']
+                detail.variant = helpers.routeMethodVariant(detail)
+                console.log(detail.variant)
                 if (detail.method === 'get' || detail.method === 'delete') {
                   detail.codable = true
+                  let argsearch = detail.route.match(/:.+$/)
+                  if (argsearch) {
+                    detail.route = detail.route.substring(0, argsearch['index'])
+                  }
                 }
               }
             })

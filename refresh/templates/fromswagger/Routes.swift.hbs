@@ -21,27 +21,37 @@ func initialize{{resource}}Routes(app: App) {
   {{#each codable}}
     {{#ifequal this.method "delete"}}
       {{#if this.codable}}
+        {{#ifequal this.variant "all"}}
     func deleteAll_{{this.handlerName}}_Handler(completion: (RequestError?) -> Void ) -> Void {
         completion(nil)
     }
+        {{/ifequal}}
+        {{#ifequal this.variant "id"}}
     func deleteId_{{this.handlerName}}_Handler(id: Int, completion: (RequestError?) -> Void ) -> Void {
         completion(nil)
     }
 
+        {{/ifequal}}
       {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "get"}}
       {{#if this.codable}}
+        {{#ifequal this.variant "all"}}
     func getAll_{{this.handlerName}}_Handler(completion: ([{{this.response}}]?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
+        {{/ifequal}}
+        {{#ifequal this.variant "id"}}
     func getId_{{this.handlerName}}_Handler(id: Int, completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
+        {{/ifequal}}
+        {{#ifequal this.variant "noid"}}
     func getIdNoId_{{this.handlerName}}_Handler(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
+        {{/ifequal}}
       {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "patch"}}
@@ -54,14 +64,18 @@ func initialize{{resource}}Routes(app: App) {
     {{/ifequal}}
     {{#ifequal this.method "post"}}
       {{#if this.codable}}
+        {{#ifequal this.variant "noid"}}
     func post_{{this.handlerName}}_Handler(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
+        {{/ifequal}}
+        {{#ifequal this.variant "noid"}}
     func postId_{{this.handlerName}}_Handler(post: {{this.param}}, completion: (Int?, {{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil, nil)
     }
 
+        {{/ifequal}}
       {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "put"}}
@@ -77,21 +91,34 @@ func initialize{{resource}}Routes(app: App) {
   {{#each codable}}
 {{#if this.codable}}
     {{#ifequal this.method "delete"}}
+      {{#ifequal this.variant "all"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteAll_{{this.handlerName}}_Handler)
+      {{/ifequal}}
+      {{#ifequal this.variant "id"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteId_{{this.handlerName}}_Handler)
+      {{/ifequal}}
     {{/ifequal}}
     {{#ifequal this.method "get"}}
+      {{#ifequal this.variant "all"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getAll_{{this.handlerName}}_Handler)
+      {{/ifequal}}
+      {{#ifequal this.variant "id"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getId_{{this.handlerName}}_Handler)
+      {{/ifequal}}
+      {{#ifequal this.variant "noid"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getIdNoId_{{this.handlerName}}_Handler)
+      {{/ifequal}}
     {{/ifequal}}
     {{#ifequal this.method "patch"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: patchId_{{this.handlerName}}_Handler)
     {{/ifequal}}
     {{#ifequal this.method "post"}}
-    // Register this route with  postId_{{this.handlerName}}_Handler instead of post_{{this.handlerName}}_Handler if you need the Id returned
-    // app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postId_{{this.handlerName}}_Handler)
+      {{#ifequal this.variant "id"}}
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postId_{{this.handlerName}}_Handler)
+      {{/ifequal}}
+      {{#ifequal this.variant "noid"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: post_{{this.handlerName}}_Handler)
+      {{/ifequal}}
     {{/ifequal}}
     {{#ifequal this.method "put"}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putId_{{this.handlerName}}_Handler)
