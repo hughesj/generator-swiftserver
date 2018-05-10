@@ -18,6 +18,10 @@ import KituraContracts
 
 func initialize{{resource}}Routes(app: App) {
 {{#if generateCodable}}
+  {{#if codable.length}}
+    // Handlers for codable routes are declared below:
+    //
+  {{/if}}
   {{#each codable}}
     {{#ifequal this.method "delete"}}
       {{#if this.codable}}
@@ -50,8 +54,8 @@ func initialize{{resource}}Routes(app: App) {
     func getIdNoId_{{this.handlerName}}_Handler(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
-
         {{/ifequal}}
+
       {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "patch"}}
@@ -68,14 +72,13 @@ func initialize{{resource}}Routes(app: App) {
     func post_{{this.handlerName}}_Handler(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
-
         {{/ifequal}}
-        {{#ifequal this.variant "noid"}}
+        {{#ifequal this.variant "id"}}
     func postId_{{this.handlerName}}_Handler(post: {{this.param}}, completion: (Int?, {{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil, nil)
     }
-
         {{/ifequal}}
+
       {{/if}}
     {{/ifequal}}
     {{#ifequal this.method "put"}}
@@ -88,6 +91,10 @@ func initialize{{resource}}Routes(app: App) {
     {{/ifequal}}
   {{/each}}
 
+  {{#if codable.length}}
+    // Codable routes are declared below:
+    //
+  {{/if}}
   {{#each codable}}
 {{#if this.codable}}
     {{#ifequal this.method "delete"}}
@@ -124,18 +131,20 @@ func initialize{{resource}}Routes(app: App) {
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putId_{{this.handlerName}}_Handler)
     {{/ifequal}}
 {{else}}
-    // Automatically generated raw route as a codable route could not be generated.
+    // This is an automatically generated raw route as a codable route could not be defined.
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
         response.send(json: [:])
         next()
     }
+{{/if}}
     {{#if @last}}
     {{else}}
 
     {{/if}}
-{{/if}}
   {{/each}}
 {{else}}
+    // Raw routes with handler closures are declared below:
+    //
   {{#each raw}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
         response.send(json: [:])

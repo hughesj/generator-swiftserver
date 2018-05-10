@@ -792,7 +792,6 @@ module.exports = Generator.extend({
                 detail.handlerName = helpers.codableHandlerName(detail.method, detail.responses)
                 detail.response = detail.responses[0]['model']
                 detail.variant = helpers.routeMethodVariant(detail)
-                console.log(detail.variant)
                 if (detail.method === 'get' || detail.method === 'delete') {
                   detail.codable = true
                   let argsearch = detail.route.match(/:.+$/)
@@ -803,6 +802,17 @@ module.exports = Generator.extend({
               }
             })
             // throw new Error("Something went badly wrong!")
+          })
+          // Sort the resources to get the codable ones first.
+          Object.keys(this.parsedSwagger.resources).forEach(resource => {
+            let cmp = function(a, b) {
+              let ca = a['codable']
+              let cb = b['codable']
+              if (ca === cb) return 0
+              if (ca && !cb) return -1
+              if (!ca && cb) return 1
+            }
+            this.parsedSwagger.resources[resource] = this.parsedSwagger.resources[resource].sort(cmp.bind(this)) 
           })
         })
         .catch(err => {
