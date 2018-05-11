@@ -15,7 +15,7 @@
  */
 
 'use strict'
-var util = require('util')
+// var util = require('util')
 var debug = require('debug')('generator-swiftserver:refresh')
 
 var Generator = require('yeoman-generator')
@@ -775,7 +775,7 @@ module.exports = Generator.extend({
             // if params are present then this is a codable route
             let routeDetails = this.parsedSwagger.resources[resource]
             routeDetails.forEach(detail => {
-              if (detail.route.match(/:[^\/]+\//)) {
+              if (detail.route.match(/:[^/]+\//)) {
                 // any route with a param embedded within it cannot be codable.
                 detail.codable = false
               } else if (detail.params.length > 0) {
@@ -808,14 +808,14 @@ module.exports = Generator.extend({
           })
           // Sort the resources to get the codable ones first.
           Object.keys(this.parsedSwagger.resources).forEach(resource => {
-            let cmp = function(a, b) {
+            let cmp = function (a, b) {
               let ca = a['codable']
               let cb = b['codable']
               if (ca === cb) return 0
               if (ca && !cb) return -1
               if (!ca && cb) return 1
             }
-            this.parsedSwagger.resources[resource] = this.parsedSwagger.resources[resource].sort(cmp.bind(this)) 
+            this.parsedSwagger.resources[resource] = this.parsedSwagger.resources[resource].sort(cmp.bind(this))
           })
         })
         .catch(err => {
