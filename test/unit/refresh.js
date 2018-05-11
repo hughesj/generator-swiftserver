@@ -1083,7 +1083,8 @@ describe('Unit tests for swiftserver:refresh', function () {
                                       appType: 'scaffold',
                                       appName: applicationName,
                                       hostSwagger: true,
-                                      fromSwagger: inputSwaggerFile
+                                      fromSwagger: inputSwaggerFile,
+                                      generateCodableRoutes: false
                                     }
                                   })
               return runContext.toPromise()
