@@ -806,15 +806,15 @@ module.exports = Generator.extend({
               }
             })
           })
-          // Sort the resources to get the codable ones first.
+          // Declares a comparison function and sort the resources to get the codable ones first.
+          let cmp = function(a, b) {
+            let ca = a['codable']
+            let cb = b['codable']
+            if (ca === cb) return 0
+            if (ca && !cb) return -1
+            if (!ca && cb) return 1
+          }
           Object.keys(this.parsedSwagger.resources).forEach(resource => {
-            let cmp = function(a, b) {
-              let ca = a['codable']
-              let cb = b['codable']
-              if (ca === cb) return 0
-              if (ca && !cb) return -1
-              if (!ca && cb) return 1
-            }
             this.parsedSwagger.resources[resource] = this.parsedSwagger.resources[resource].sort(cmp.bind(this)) 
           })
         })
