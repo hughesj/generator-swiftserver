@@ -26,12 +26,12 @@ func initialize{{resource}}Routes(app: App) {
     {{#ifequal this.method "delete"}}
       {{#if this.codable}}
         {{#ifequal this.variant "all"}}
-    func deleteAll_{{this.handlerName}}_Handler(completion: (RequestError?) -> Void ) -> Void {
+    func deleteAll_{{this.handlerName}}(completion: (RequestError?) -> Void ) -> Void {
         completion(nil)
     }
         {{/ifequal}}
         {{#ifequal this.variant "id"}}
-    func deleteId_{{this.handlerName}}_Handler(id: Int, completion: (RequestError?) -> Void ) -> Void {
+    func deleteSingle_{{this.handlerName}}(id: Int, completion: (RequestError?) -> Void ) -> Void {
         completion(nil)
     }
 
@@ -41,17 +41,17 @@ func initialize{{resource}}Routes(app: App) {
     {{#ifequal this.method "get"}}
       {{#if this.codable}}
         {{#ifequal this.variant "all"}}
-    func getAll_{{this.handlerName}}_Handler(completion: ([{{this.response}}]?, RequestError?) -> Void ) -> Void {
+    func getAll_{{this.handlerName}}(completion: ([{{this.response}}]?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
         {{/ifequal}}
         {{#ifequal this.variant "id"}}
-    func getId_{{this.handlerName}}_Handler(id: Int, completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
+    func getSingle_{{this.handlerName}}(id: Int, completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
         {{/ifequal}}
         {{#ifequal this.variant "noid"}}
-    func getIdNoId_{{this.handlerName}}_Handler(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
+    func getSingleNoId_{{this.handlerName}}(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
         {{/ifequal}}
@@ -60,7 +60,7 @@ func initialize{{resource}}Routes(app: App) {
     {{/ifequal}}
     {{#ifequal this.method "patch"}}
       {{#if this.codable}}
-    func patchId_{{this.handlerName}}_Handler(id: Int, patch: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+    func patchSingle_{{this.handlerName}}(id: Int, patch: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
@@ -69,12 +69,12 @@ func initialize{{resource}}Routes(app: App) {
     {{#ifequal this.method "post"}}
       {{#if this.codable}}
         {{#ifequal this.variant "noid"}}
-    func post_{{this.handlerName}}_Handler(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+    func postNoId_{{this.handlerName}}(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
         {{/ifequal}}
         {{#ifequal this.variant "id"}}
-    func postId_{{this.handlerName}}_Handler(post: {{this.param}}, completion: (Int?, {{this.param}}?, RequestError?) -> Void ) -> Void {
+    func postSingle_{{this.handlerName}}(post: {{this.param}}, completion: (Int?, {{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil, nil)
     }
         {{/ifequal}}
@@ -83,7 +83,7 @@ func initialize{{resource}}Routes(app: App) {
     {{/ifequal}}
     {{#ifequal this.method "put"}}
       {{#if this.codable}}
-    func putId_{{this.handlerName}}_Handler(put: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
+    func putSingle_{{this.handlerName}}(id: Int, put: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
         completion(nil, nil)
     }
 
@@ -99,36 +99,36 @@ func initialize{{resource}}Routes(app: App) {
 {{#if this.codable}}
     {{#ifequal this.method "delete"}}
       {{#ifequal this.variant "all"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteAll_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteAll_{{this.handlerName}})
       {{/ifequal}}
       {{#ifequal this.variant "id"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: deleteSingle_{{this.handlerName}})
       {{/ifequal}}
     {{/ifequal}}
     {{#ifequal this.method "get"}}
       {{#ifequal this.variant "all"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getAll_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getAll_{{this.handlerName}})
       {{/ifequal}}
       {{#ifequal this.variant "id"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getSingle_{{this.handlerName}})
       {{/ifequal}}
       {{#ifequal this.variant "noid"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getIdNoId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: getSingleNoId_{{this.handlerName}})
       {{/ifequal}}
     {{/ifequal}}
     {{#ifequal this.method "patch"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: patchId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: patchSingle_{{this.handlerName}})
     {{/ifequal}}
     {{#ifequal this.method "post"}}
       {{#ifequal this.variant "id"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postSingle_{{this.handlerName}})
       {{/ifequal}}
       {{#ifequal this.variant "noid"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: post_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: postNoId_{{this.handlerName}})
       {{/ifequal}}
     {{/ifequal}}
     {{#ifequal this.method "put"}}
-    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putId_{{this.handlerName}}_Handler)
+    app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}", handler: putSingle_{{this.handlerName}})
     {{/ifequal}}
 {{else}}
     // This is an automatically generated raw route as a codable route could not be defined.

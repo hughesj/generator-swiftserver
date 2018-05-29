@@ -1084,7 +1084,7 @@ describe('Unit tests for swiftserver:refresh', function () {
                                       appName: applicationName,
                                       hostSwagger: true,
                                       fromSwagger: inputSwaggerFile,
-                                      generateCodableRoutes: false
+                                      generateCodableRoutes: true
                                     }
                                   })
               return runContext.toPromise()
