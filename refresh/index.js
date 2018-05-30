@@ -15,7 +15,6 @@
  */
 
 'use strict'
-// var util = require('util')
 var debug = require('debug')('generator-swiftserver:refresh')
 
 var Generator = require('yeoman-generator')
@@ -775,34 +774,39 @@ module.exports = Generator.extend({
             // if params are present then this is a codable route
             let routeDetails = this.parsedSwagger.resources[resource]
 
-            let counts = {
-              'delete': {'id': 0, 'noid': 0, 'all': 0},
-              'get': {'id': 0, 'noid': 0, 'all': 0},
-              'patch': {'id': 0},
-              'post': {'id': 0, 'noid': 0},
-              'put': {'id': 0}}
+            let counts
 
             routeDetails.forEach(detail => {
               detail.variant = helpers.routeMethodVariant(detail)
               detail.handlerName = helpers.codableHandlerNameInsert(detail, counts)
-              if (detail.route.match(/:[^/]+\//)) {
-                // any route with a param embedded within it cannot be codable.
+              if (!helpers.supportedMethod(detail.method)) {
+                // any unsupported method types are non-codable, so they will always generate a raw route.
+                detail.codable = false
+              } else if (detail.route.match(/:[^/]+\//)) {
+                // any route with a param embedded within it cannot be codable, so it will always generate a raw route.
                 detail.codable = false
               } else if (detail.params && detail.params.length > 0) {
-                // generate a codable handler name
+                // to generate a codable handler name, use the
+                // model name found in the first parameter.
                 detail.param = detail.params[0]['model']
-                // remove the end parameter and make codable.
+                // modify the route by removing the end parameter.
                 detail.route = detail.route.replace(/:.+$/, '')
+                // and make codable.
                 detail.codable = true
               } else if (detail.responses && detail.responses.length > 0) {
-                detail.codable = true
+                // to generate a codable handler name, use the
+                // model name found in the first response.
                 detail.response = detail.responses[0]['model']
                 if (detail.method === 'get' || detail.method === 'delete') {
+                  // for delete and get methods, remove any parts of the route
+                  // following the first parameter on the route (":...")
                   let argsearch = detail.route.match(/:.+$/)
                   if (argsearch) {
                     detail.route = detail.route.substring(0, argsearch['index'])
                   }
                 }
+                // and make codable.
+                detail.codable = true
               } else {
                 // no params or responses, so this will be a delete.
                 // although deletes do not pass codable objects, they can still be call in the same way.
@@ -1119,10 +1123,10 @@ module.exports = Generator.extend({
             this.destinationPath('Sources', this.applicationModule, 'Routes', `${generatedName}Routes.swift`),
             {
               resource: generatedName,
-              codable: this.parsedSwagger.resources[resource],
-              raw: this.parsedSwagger.resources[resource],
+              routedetail: this.parsedSwagger.resources[resource],
+              hascodable: this.parsedSwagger.resources[resource].reduce((acc, val) => { return acc + (val.codable ? 1 : 0) }, 0) > 0,
               basepath: this.parsedSwagger.basepath,
-              generateCodable: this.generateCodableRoutes
+              generatecodable: this.generateCodableRoutes
             }
           )
         })

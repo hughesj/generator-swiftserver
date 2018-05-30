@@ -17,22 +17,22 @@ import Kitura
 import KituraContracts
 
 func initialize{{resource}}Routes(app: App) {
-{{#if generateCodable}}
-  {{#if codable.length}}
+{{#if generatecodable}}
+  {{#if hascodable}}
     // Handlers for codable routes are declared below:
     //
   {{/if}}
-  {{#each codable}}
+  {{#each routedetail}}
     {{#ifequal this.method "delete"}}
       {{#if this.codable}}
         {{#ifequal this.variant "all"}}
     func deleteAll_{{this.handlerName}}(completion: (RequestError?) -> Void ) -> Void {
-        completion(nil)
+        completion(.notImplemented)
     }
         {{/ifequal}}
         {{#ifequal this.variant "id"}}
     func deleteSingle_{{this.handlerName}}(id: Int, completion: (RequestError?) -> Void ) -> Void {
-        completion(nil)
+        completion(.notImplemented)
     }
 
         {{/ifequal}}
@@ -42,17 +42,17 @@ func initialize{{resource}}Routes(app: App) {
       {{#if this.codable}}
         {{#ifequal this.variant "all"}}
     func getAll_{{this.handlerName}}(completion: ([{{this.response}}]?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil)
+        completion(nil, .notImplemented)
     }
         {{/ifequal}}
         {{#ifequal this.variant "id"}}
     func getSingle_{{this.handlerName}}(id: Int, completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil)
+        completion(nil, .notImplemented)
     }
         {{/ifequal}}
         {{#ifequal this.variant "noid"}}
     func getSingleNoId_{{this.handlerName}}(completion: ({{this.response}}?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil)
+        completion(nil, .notImplemented)
     }
         {{/ifequal}}
 
@@ -61,7 +61,7 @@ func initialize{{resource}}Routes(app: App) {
     {{#ifequal this.method "patch"}}
       {{#if this.codable}}
     func patchSingle_{{this.handlerName}}(id: Int, patch: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil)
+        completion(nil, .notImplemented)
     }
 
       {{/if}}
@@ -70,12 +70,12 @@ func initialize{{resource}}Routes(app: App) {
       {{#if this.codable}}
         {{#ifequal this.variant "noid"}}
     func postNoId_{{this.handlerName}}(post: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil)
+        completion(nil, .notImplemented)
     }
         {{/ifequal}}
         {{#ifequal this.variant "id"}}
     func postSingle_{{this.handlerName}}(post: {{this.param}}, completion: (Int?, {{this.param}}?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil, nil)
+        completion(nil, nil, .notImplemented)
     }
         {{/ifequal}}
 
@@ -84,18 +84,18 @@ func initialize{{resource}}Routes(app: App) {
     {{#ifequal this.method "put"}}
       {{#if this.codable}}
     func putSingle_{{this.handlerName}}(id: Int, put: {{this.param}}, completion: ({{this.param}}?, RequestError?) -> Void ) -> Void {
-        completion(nil, nil)
+        completion(nil, .notImplemented)
     }
 
       {{/if}}
     {{/ifequal}}
   {{/each}}
 
-  {{#if codable.length}}
+  {{#if hascodable}}
     // Codable routes are declared below:
     //
   {{/if}}
-  {{#each codable}}
+  {{#each routedetail}}
 {{#if this.codable}}
     {{#ifequal this.method "delete"}}
       {{#ifequal this.variant "all"}}
@@ -145,7 +145,7 @@ func initialize{{resource}}Routes(app: App) {
 {{else}}
     // Raw routes with handler closures are declared below:
     //
-  {{#each raw}}
+  {{#each routedetail}}
     app.router.{{this.method}}("{{#if ../basepath}}\(basePath){{/if}}{{this.route}}") { request, response, next in
         response.send(json: [:])
         next()
